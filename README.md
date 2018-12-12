@@ -2,7 +2,11 @@
 
 - **Cnvlutin: Ineffectual-Neuron-Free Deep Convolutional Neural Network Computing.** (University of Toronto, University of British Columbia)
     - *A DNN accelerator that can dynamically eliminate most ineffectual multiplications.*
-    - *Targets the convolutional layers of DNNs which dominate the execution time*
+    - *Targets convolutional layers of DNNs which dominate the execution time*
+    - *CNV decouples the neuron lanes (input channel) which were working synchronously, allowing them to proceed independently*
+    - *only non-zeros appear in the input buffer (eliminated at output of the preceding layer), stored by value and index (generate on-the-fly)*
+    - *input neurons is divided into several blocks by dimension, independently process each brick, but some lanes may have wait other lanes complete the processing of current window*
+    - *further improve performance by pruning weights close to zeros, with a loss in accuracy*
 - **EIE: Efficient Inference Engine on Compressed Deep Neural Network.** (Stanford University, Tsinghua University)
     - *First acclerator for sparse and weight sharing neural networks*
         - *achieves weight sharing by store only index of quantized weights (a shared table between PEs)*
@@ -10,9 +14,19 @@
     - *Proposed customized sparse matrix multiplication, which exploit both static and dynamic sparsity of the model*
         - *static sparsity: weights stored by variation of CSR (sparsity of weights)*
         - *dynamic sparsity: leading non-zeros detection (sparsity of input vectors)*
+        - *1st: broadcast non-zero to each PE. 2nd: walk through weights of that column(from start of this column to start of next column)*
     - *Proposed a method of both distributed computation and storage to parallelize sparsified layer across multiple PEs*
         - *FIFO used as activation queue to achieve load balance between multiple PEs*
 - **Minerva: Enabling Low-Power, High-Accuracy Deep Neural Network Accelerators.** (Harvard University)
+    - *highly accurate, ultra-low power DNN acclerator*
+    - *data type quantization: input, weights, output at each layer are quantized into different types (different integer and fractional bits)*
+    - *selective operation pruning: removes operands close to zero (dynamically predicate)*
+        - *75% of activities can be safely pruned (at threshold value of 1.05)*
+    - *SRAM fault mitigation: low overhead fault mitigation techniques (since fault rate of SRAM increases with reduction of voltage), reduce SRAM supply voltages*
+        - *faults in SRAM are modeled as random bit-flips in the weight matrix*
+        - *flip a high-order bit of zero dramatically affect the accuracy*
+        - *bit masking: detected faulted bits are set to zero*
+    - *relative benefits from each optimization is different on each data set*
 - **Eyeriss: A Spatial Architecture for Energy-Efficient Dataflow for Convolutional Neural Networks.** (MIT, NVIDIA)
     - *Present an energy analysis framework.*
     - *Propose an energy-efficienct dataflow called Row Stationary, which considers three levels of reuse.*
