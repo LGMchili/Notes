@@ -1,32 +1,64 @@
 # Paper reading notes for performance and energy efficient machine learning accelerators
-
-- **Cnvlutin: Ineffectual-Neuron-Free Deep Convolutional Neural Network Computing.** (University of Toronto, University of British Columbia)
+- **Deep Compression: COMPRESSING DEEP NEURAL NETWORKS WITH PRUNING, TRAINED QUANTIZATION AND HUFFMAN CODING.** (Stanford, Tsinghua University, ICLR 2016)
+    - *Network pruning*
+        - *weights below a threshold are removed from the network*
+        - *retrain weights*
+        - *sparse structure stored by difference instead of absolute position (CSR or CSC)*
+    - *Weight sharing*
+        - *quantize to shared weights by k-means clustering*
+        - *centroid finetune by gredient*
+        - *after quantization and finetune, results show that linear initialization works best*
+    - *Huffman coding*
+        - *weight index (index of shared weights) and sparse martrix location index (difference of weight location) are encoded, saves 20%-30% of storage*
+- **Cnvlutin: Ineffectual-Neuron-Free Deep Convolutional Neural Network Computing.** (University of Toronto, University of British Columbia, ISCA'16)
     - *A DNN accelerator that can dynamically eliminate most ineffectual multiplications.*
     - *Targets convolutional layers of DNNs which dominate the execution time*
     - *CNV decouples the neuron lanes (input channel) which were working synchronously, allowing them to proceed independently*
     - *only non-zeros appear in the input buffer (eliminated at output of the preceding layer), stored by value and index (generate on-the-fly)*
     - *input neurons is divided into several blocks by dimension, independently process each brick, but some lanes may have wait other lanes complete the processing of current window*
     - *further improve performance by pruning weights close to zeros, with a loss in accuracy*
-- **EIE: Efficient Inference Engine on Compressed Deep Neural Network.** (Stanford University, Tsinghua University)
+- **EIE: Efficient Inference Engine on Compressed Deep Neural Network.** (Stanford University, Tsinghua University, ISCA'16)
     - *First acclerator for sparse and weight sharing neural networks*
         - *achieves weight sharing by store only index of quantized weights (a shared table between PEs)*
     - *Targets the fully connected layers, to performs inference on compressed models*
     - *Proposed customized sparse matrix multiplication, which exploit both static and dynamic sparsity of the model*
         - *static sparsity: weights stored by variation of CSR (sparsity of weights)*
         - *dynamic sparsity: leading non-zeros detection (sparsity of input vectors)*
-        - *1st: broadcast non-zero to each PE. 2nd: walk through weights of that column(from start of this column to start of next column)*
+            - *1st: broadcast non-zero to each PE. 2nd: walk through weights of that column(from start of this column to start of next column)*
     - *Proposed a method of both distributed computation and storage to parallelize sparsified layer across multiple PEs*
         - *FIFO used as activation queue to achieve load balance between multiple PEs*
-- **Minerva: Enabling Low-Power, High-Accuracy Deep Neural Network Accelerators.** (Harvard University)
+- **Minerva: Enabling Low-Power, High-Accuracy Deep Neural Network Accelerators.** (Harvard University, ISCA'16)
     - *highly accurate, ultra-low power DNN acclerator*
     - *data type quantization: input, weights, output at each layer are quantized into different types (different integer and fractional bits)*
     - *selective operation pruning: removes operands close to zero (dynamically predicate)*
         - *75% of activities can be safely pruned (at threshold value of 1.05)*
-    - *SRAM fault mitigation: low overhead fault mitigation techniques (since fault rate of SRAM increases with reduction of voltage), reduce SRAM supply voltages*
+    - *SRAM fault mitigation: low overhead fault mitigation techniques (since fault rate of SRAM increases with reduction of voltage), to tolerate reduced SRAM supply voltages*
         - *faults in SRAM are modeled as random bit-flips in the weight matrix*
         - *flip a high-order bit of zero dramatically affect the accuracy*
         - *bit masking: detected faulted bits are set to zero*
     - *relative benefits from each optimization is different on each data set*
-- **Eyeriss: A Spatial Architecture for Energy-Efficient Dataflow for Convolutional Neural Networks.** (MIT, NVIDIA)
+- **SCNN: An Accelerator for Compressed-sparse Convolutional Neural Networks.** (NVIDIA, UC-Berkeley, Stanford University, ISCA'17)
+    - *sparse CNN accelerator architecture, exploits both weight and activation sparsity to improve performance and power*
+    - *exploit sparsity by:*
+        - *compressing data: encode data*
+        - *eliminating computation: gate zero weights and activations*
+    - *employ a Cartesian product dataflow*
+        - *consider a all-to-all production instead of sliding window based convolution*
+    - *input/output activation are tailed, cross-tile dependencies of convotion resolved by data halos*
+- **Cambricon-X: An Accelerator for Sparse Neural Networks**
+    - **
+- **Eyeriss: A Spatial Architecture for Energy-Efficient Dataflow for Convolutional Neural Networks.** (MIT, NVIDIA, JSSC'2017)
     - *Present an energy analysis framework.*
     - *Propose an energy-efficienct dataflow called Row Stationary, which considers three levels of reuse.*
+- **Aladdin: A Pre-RTL, Power-Performance Accelerator Simulator Enabling Large Design Space Exploration of Customized Architectures.** (Havard University, CAN 2014)
+    - *a pre-RTL power-performance simulator for rapid design space exploration of accelerators*
+
+- **BinaryConnect: Training Deep Neural Networks with binary weights during propagations.** (NIPS'2015)
+    - *weight constrained to binary value -1 or 1*
+        - *binarize to +1 with probability p=σ(weight)*
+        - *binarize to -1 with probability p=1-σ(weight)*
+    - *binary weights will bring great benefits to hardware by replacing many multiply-accumulate operations by simple accumulation*
+    - *forward and backward pass use wb, but only the real value weight w are updated*
+
+- **Regularization of Neural Networks using DropConnect**
+    - *randomly subset of activations are set to zero when training with dropout, DropConnect instead set subset of weights to zero*
